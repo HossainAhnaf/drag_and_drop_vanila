@@ -10,13 +10,17 @@
 .user-list > span{
 padding: 10px;
 background-color: gray;
-cursor: pointer;
+cursor: grab;
+user-select: none;
+position: relative;
 }
 .dragging{
-  opacity: 0.5;
+  opacity: 0.1;
+  /* visibility: hidden; */
 }
 .draggover{
- border: 1px solid black ;
+ border: 3px solid black ;
+ border-style: dashed;
 }
 
 
