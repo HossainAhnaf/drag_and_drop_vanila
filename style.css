@@ -1,0 +1,22 @@
+.user-list{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
+  margin: 10vw auto;
+  width: 200px;
+  gap: 2px;
+}
+.user-list > span{
+padding: 10px;
+background-color: gray;
+cursor: pointer;
+}
+.dragging{
+  opacity: 0.5;
+}
+.draggover{
+ border: 1px solid black ;
+}
+
+
