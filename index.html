@@ -7,16 +7,19 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="user-list">
-     <span draggable="true" >user1</span>
-     <span>user2</span>
-     <span>user3</span>
-     <span>user4</span>
-     <span>user5</span>
-  </div>
+  <ol class="user-list">
+     <li class="draggable" >user1</li>
+     <li class="draggable">user2</li>
+     <li class="draggable">user3</li>
+     <li class="draggable">user4</li>
+     <li class="draggable">user5</li>
+  </ol>
+  
 </body>
 <script src="main.js"></script>
 <script>
   const horizontalDragableList = new UseHorizontalDragableList(document.querySelector(".user-list"));
+
+  console.log()
 </script>
 </html>

@@ -5,22 +5,21 @@
   align-self: center;
   margin: 10vw auto;
   width: 200px;
-  gap: 2px;
+  gap: 10px;
 }
-.user-list > span{
+.user-list > li{
 padding: 10px;
 background-color: gray;
-cursor: grab;
+cursor: move;
 user-select: none;
-position: relative;
+border: 1px solid black
 }
-.dragging{
-  opacity: 0.1;
-  /* visibility: hidden; */
+[data-dragging="true"]{
+  background-color: skyblue !important;
 }
-.draggover{
- border: 3px solid black ;
- border-style: dashed;
+.drag-over{
+transition: transform 0.3s;
+z-index: -1;
 }
 
 
