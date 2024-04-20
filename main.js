@@ -1,5 +1,12 @@
 class HorizontalDragableList {
-
+  /**
+  * HorizontalDragableList is a class to make a list of elements draggable horizontally.
+  * It takes an element that contains draggable items.
+  * The draggable items should have a class name 'draggable'.
+  * The class also handles the visual state of the draggable items.
+  * 
+  * @param {Element} element - The container element that contains draggable items.
+  */
   constructor(element) {
     this.listContainer = element;
 
