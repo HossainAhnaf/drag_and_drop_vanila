@@ -15,9 +15,9 @@ class HorizontalDragableList {
   }
 
   init() {
-   const {top,bottom} = this.listContainer.getBoundingClientRect();
-   this.maxYOffset = top * 0.9;
-   this.minYOffset = bottom * 1.03;
+   window.addEventListener('load',this.#updateMinMaxYOffset.bind(this))
+   window.addEventListener('resize', this.#updateMinMaxYOffset.bind(this))
+
     this.draggableElements.forEach((item, index) => {
       item.setAttribute("draggable", "false");
       item.setAttribute("data-visual-index", index);
@@ -25,18 +25,21 @@ class HorizontalDragableList {
       item.style.setProperty("z-index", "0")
       item.addEventListener("pointerdown", this.#dragStartHandler.bind(this))
     })
-
   }
-
-  #updateState(newElm, newDraggingElementVisualIndex) {
+  #updateMinMaxYOffset() {
+    const {top,bottom} = this.listContainer.getBoundingClientRect();
+    this.maxYOffset = top;
+    this.minYOffset = bottom;
+  }
+  #updateState(newElm, draggingElementNewVisualIndex) {
 
     function updateDraggingState() {
       if (newElm) {
         this.draggingState.elm = newElm
         this.draggingState.startRect = newElm.getBoundingClientRect()
       }
-      this.draggingState.visualIndex = newDraggingElementVisualIndex
-      this.draggingState.elm.setAttribute("data-visual-index", newDraggingElementVisualIndex)
+      this.draggingState.visualIndex = draggingElementNewVisualIndex
+      this.draggingState.elm.setAttribute("data-visual-index", draggingElementNewVisualIndex)
     }
 
     function updateNextPrevState() {
@@ -50,11 +53,11 @@ class HorizontalDragableList {
         if (this.nextElement && this.prevElement)
           break;
         const visualIndex = parseInt(elm.getAttribute("data-visual-index"))
-        if (visualIndex === newDraggingElementVisualIndex - 1) {
+        if (visualIndex === draggingElementNewVisualIndex - 1) {
           this.prevState.elm = elm
           this.prevState.rect = elm.getBoundingClientRect()
         }
-        else if (visualIndex === newDraggingElementVisualIndex + 1) {
+        else if (visualIndex === draggingElementNewVisualIndex + 1) {
           this.nextState.elm = elm
           this.nextState.rect = elm.getBoundingClientRect()
         }
@@ -78,25 +81,25 @@ class HorizontalDragableList {
   #dragMoveHandler(e) {
     if (this.draggingState.elm?.getAttribute("data-dragging") == "true") {
     const draggingElmRect = this.draggingState.elm.getBoundingClientRect()
-    const currentTranslateY =  e.clientY - this.startYOffset 
-   
+    const currentTranslateY = Math.min(this.minYOffset,Math.max(e.clientY,this.maxYOffset)) - this.startYOffset 
     this.draggingState.elm.style.setProperty("transform", `translateY(${(currentTranslateY)}px)`)
       const isPrevElementDraggedOver = (this.prevState.rect && draggingElmRect.top <= this.prevState.rect.top + this.prevState.rect.height / 2)
       const isNextElementDraggedOver = (this.nextState.rect && draggingElmRect.top >= this.nextState.rect.top - this.nextState.rect.height / 2)
 
       if (isPrevElementDraggedOver || isNextElementDraggedOver)
-        this.#dragOverHandler(isPrevElementDraggedOver ? { ...this.prevState, value: -1 } : { ...this.nextState, value: 1 })
+        this.#changeDraggingElementVisualIndex(isPrevElementDraggedOver ? this.prevState : this.nextState)
   
     }
   }
 
-  #dragOverHandler({ elm: dragOverElement, rect: dragOverElmRect, value }) {
+  #changeDraggingElementVisualIndex({ elm: dragOverElement, rect: dragOverElmRect}) {
     const oldTransformValue = /\d+/.exec(dragOverElement.style.getPropertyValue("transform"))
     const oldTranslateY = (oldTransformValue ? parseInt(oldTransformValue[0]) : 0)
-    dragOverElement.style.setProperty("transform", `translateY(${this.draggingState.startRect.top - dragOverElmRect.top - (value === -1 ? oldTranslateY : -oldTranslateY)}px)`)
+    const dragOverElementVisualIndex = parseInt(dragOverElement.getAttribute("data-visual-index")) 
+    dragOverElement.style.setProperty("transform", `translateY(${this.draggingState.startRect.top - dragOverElmRect.top - (this.draggingState.visualIndex - dragOverElementVisualIndex === 1 ? oldTranslateY : -oldTranslateY)}px)`)
     dragOverElement.setAttribute("data-visual-index", this.draggingState.visualIndex)
     this.draggingState.startRect = dragOverElmRect
-    this.#updateState(null, this.draggingState.visualIndex + value)
+    this.#updateState(null, dragOverElementVisualIndex)
   }
 
   #dragEndHandler() {
