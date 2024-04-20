@@ -1,4 +1,4 @@
-class UseHorizontalDragableList {
+class HorizontalDragableList {
 
   constructor(element) {
     this.listContainer = element;
@@ -51,7 +51,7 @@ class UseHorizontalDragableList {
     function updateNextPrevState() {
       this.nextState.elm = null
       this.prevState.elm = null
-      
+
       this.prevState.rect = null
       this.nextState.rect = null
 
