@@ -10,12 +10,14 @@
 .user-list > li{
 padding: 10px;
 background-color: gray;
-cursor: move;
 user-select: none;
-border: 1px solid black
+cursor: pointer;
+border: 1px solid black;
 }
 [data-dragging="true"]{
   background-color: skyblue !important;
+  scale: 1.1;
+  transition: scale 0.3s;
 }
 .drag-over{
 transition: transform 0.3s;

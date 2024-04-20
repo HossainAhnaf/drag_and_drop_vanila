@@ -1,23 +1,7 @@
 class HorizontalDragableList {
-  /**
-  * HorizontalDragableList is a class to make a list of elements draggable horizontally.
-  * It takes an element that contains draggable items.
-  * The draggable items should have a class name 'draggable'.
-  * The class also handles the visual state of the draggable items.
-  * 
-  * @param {Element} element - The container element that contains draggable items.
-  */
+
   constructor(element) {
     this.listContainer = element;
-
-    this.isTouchDevice = ('ontouchstart' in window) ||
-      (navigator.maxTouchPoints > 0) ||
-      (navigator.msMaxTouchPoints > 0);
-
-    this.dragStartEventName = this.isTouchDevice ? "touchstart" : "mousedown"
-    this.dragMoveHandlerName = this.isTouchDevice ? "touchmove" : "mousemove"
-    this.dragEndEventName = this.isTouchDevice ? "touchend" : "mouseup"
-
     this.draggableElements = Array.from(this.listContainer.querySelectorAll('.draggable'))
     this.draggingState = {
       elm: null,
@@ -31,15 +15,15 @@ class HorizontalDragableList {
   }
 
   init() {
+   const {top,bottom} = this.listContainer.getBoundingClientRect();
+   this.maxYOffset = top * 0.9;
+   this.minYOffset = bottom * 1.03;
     this.draggableElements.forEach((item, index) => {
       item.setAttribute("draggable", "false");
       item.setAttribute("data-visual-index", index);
+      item.style.setProperty("touch-action", "none");
       item.style.setProperty("z-index", "0")
-      item.addEventListener(this.dragStartEventName, this.#dragStartHandler.bind(this))
-      item.addEventListener(this.dragEndEventName, this.#dragEndHandler.bind(this))
-      if (!this.isTouchDevice)
-        item.addEventListener("mouseleave", this.#dragEndHandler.bind(this))
-
+      item.addEventListener("pointerdown", this.#dragStartHandler.bind(this))
     })
 
   }
@@ -82,27 +66,27 @@ class HorizontalDragableList {
 
   #dragStartHandler(e) {
     this.#updateState(e.currentTarget, parseInt(e.currentTarget.getAttribute("data-visual-index")))
-
-    this.startYOffset = this.isTouchDevice ? e.touches[0].clientY : e.clientY
-
+    this.startYOffset = e.clientY
     this.draggingState.elm.setAttribute("data-dragging", "true");
     this.draggingState.elm.style.setProperty("z-index", "1")
-
-
-    this.draggingState.elm.addEventListener(this.dragMoveHandlerName, this.#dragMoveHandler.bind(this))
+    document.addEventListener("pointermove",this.#dragMoveHandler.bind(this))
+    document.addEventListener("pointerup", this.#dragEndHandler.bind(this))
+    document.documentElement.style.setProperty("cursor", "grabbing")
+    this.draggingState.elm.style.setProperty("cursor", "grabbing")
   }
 
   #dragMoveHandler(e) {
     if (this.draggingState.elm?.getAttribute("data-dragging") == "true") {
-      const currentTranslateY = (this.isTouchDevice ? e.touches[0].clientY : e.clientY) - this.startYOffset
-      this.draggingState.elm.style.setProperty("transform", `translateY(${(currentTranslateY)}px)`)
-      const draggingElmRect = this.draggingState.elm.getBoundingClientRect()
+    const draggingElmRect = this.draggingState.elm.getBoundingClientRect()
+    const currentTranslateY =  e.clientY - this.startYOffset 
+   
+    this.draggingState.elm.style.setProperty("transform", `translateY(${(currentTranslateY)}px)`)
       const isPrevElementDraggedOver = (this.prevState.rect && draggingElmRect.top <= this.prevState.rect.top + this.prevState.rect.height / 2)
       const isNextElementDraggedOver = (this.nextState.rect && draggingElmRect.top >= this.nextState.rect.top - this.nextState.rect.height / 2)
 
       if (isPrevElementDraggedOver || isNextElementDraggedOver)
         this.#dragOverHandler(isPrevElementDraggedOver ? { ...this.prevState, value: -1 } : { ...this.nextState, value: 1 })
-
+  
     }
   }
 
@@ -120,7 +104,10 @@ class HorizontalDragableList {
     if (elm) {
       elm.setAttribute("data-dragging", "false");
       elm.style.setProperty("z-index", "0");
-      elm.removeEventListener(this.dragMoveHandlerName, this.#dragMoveHandler);
+      document.removeEventListener("pointermove",this.#dragMoveHandler.bind(this))
+      document.removeEventListener("pointerup", this.#dragEndHandler.bind(this))
+      document.documentElement.style.removeProperty("cursor")
+      this.draggingState.elm.style.removeProperty("cursor")
       this.draggingState.elm = null;
       this.#updateDragableElements();
     }
