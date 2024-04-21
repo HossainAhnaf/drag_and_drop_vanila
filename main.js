@@ -37,10 +37,16 @@ class HorizontalDragableList {
   }
 
   init() {
-    window.addEventListener('load', this.#updateMinMaxYOffset.bind(this))
-    window.addEventListener('resize', this.#updateMinMaxYOffset.bind(this))
+    window.addEventListener('load',this.#updateMinMaxYOffset.bind(this))
+    window.addEventListener('resize',()=>{
+      this.#updateMinMaxYOffset.bind(this)()
+      this.#updateRects.bind(this)()
+    })
+
     this.draggableElements.forEach((item, index) => {
       item.style.setProperty("transition", "transform 0.3s")
+      item.style.setProperty("touch-action", "none")
+
       item.setAttribute("data-visual-index", index);
       item.addEventListener("pointerdown", this.#dragStartHandler.bind(this))
       this.draggableElementRects.push(item.getBoundingClientRect())
@@ -50,6 +56,11 @@ class HorizontalDragableList {
     const { top, bottom } = this.listContainer.getBoundingClientRect();
     this.maxYOffset = top;
     this.minYOffset = bottom;
+  }
+  #updateRects() {
+    this.draggableElements.forEach((item, index) => {
+      this.draggableElementRects[index] = item.getBoundingClientRect();
+    })
   }
   #updateNextPrevState() {
     this.prevState = {}
@@ -76,6 +87,7 @@ class HorizontalDragableList {
     this.draggingState.visualIndex = parseInt(e.currentTarget.getAttribute("data-visual-index"))
     this.draggingState.dummyElement.setAttribute("data-dragging", "true");
     e.currentTarget.style.setProperty("opacity", "0")
+
     this.draggingState.dummyElement.style.setProperty("cursor", "grabbing")
     document.documentElement.style.setProperty("cursor", "grabbing")
     this.listContainer.appendChild(this.draggingState.dummyElement)
