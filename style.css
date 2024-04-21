@@ -19,9 +19,3 @@ border: 1px solid black;
   scale: 1.1;
   transition: scale 0.3s;
 }
-.drag-over{
-transition: transform 0.3s;
-z-index: -1;
-}
-
-
