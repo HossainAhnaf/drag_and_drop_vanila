@@ -86,11 +86,11 @@ class HorizontalDragableList {
     this.draggingState.updateDummyElement(this.draggingState.startRect.top)
     this.draggingState.visualIndex = parseInt(e.currentTarget.getAttribute("data-visual-index"))
     this.draggingState.dummyElement.setAttribute("data-dragging", "true");
-    e.currentTarget.style.setProperty("opacity", "0")
-
+    e.currentTarget.style.setProperty("opacity", "0")    
     this.draggingState.dummyElement.style.setProperty("cursor", "grabbing")
     document.documentElement.style.setProperty("cursor", "grabbing")
     this.listContainer.appendChild(this.draggingState.dummyElement)
+     this.draggableElements.forEach((item) => item.style.setProperty("user-select", "none"))
     this.#updateNextPrevState()
 
     this.startYOffset = e.clientY
@@ -135,6 +135,7 @@ class HorizontalDragableList {
     Array.from(this.listContainer.children).forEach((elm) => elm.classList.contains("draggable") && this.listContainer.removeChild(elm))
     this.draggableElements.sort((a, b) => a.getAttribute("data-visual-index") - b.getAttribute("data-visual-index"))
     for (const elm of this.draggableElements) {
+      elm.style.removeProperty("user-select")
       elm.style.removeProperty("transform")
       this.listContainer.appendChild(elm);
     }
