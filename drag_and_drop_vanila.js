@@ -24,7 +24,7 @@ class DraggingState{
   }
 }
 
-class HorizontalDragableList {
+class DragAndDrop {
 
   constructor(element) {
     this.listContainer = element;
