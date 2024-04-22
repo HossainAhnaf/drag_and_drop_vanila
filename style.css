@@ -14,7 +14,7 @@ user-select: none;
 cursor: pointer;
 border: 1px solid black;
 }
-[data-dragging="true"]{
+.dragging{
   background-color: skyblue !important;
   scale: 1.1;
   transition: scale 0.3s;
