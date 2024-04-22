@@ -76,7 +76,7 @@ class DragAndDrop {
       this.draggingState.updateMinMaxYOffset(this.listContainer)
       this.#updateRects.bind(this)()
     })
-
+    window.addEventListener('scroll',this.#updateRects.bind(this))
     this.draggableElements.forEach((item, index) => {
       item.style.setProperty("transition", "transform 0.3s")
       item.style.setProperty("touch-action", "none")
