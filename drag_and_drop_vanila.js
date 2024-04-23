@@ -30,9 +30,11 @@ class DraggingState {
     const { width } = getComputedStyle(this.elm)
     dummyElement.style.removeProperty("transition")
     dummyElement.style.setProperty("width", width)
-    dummyElement.style.setProperty("position", "fixed")
+    dummyElement.style.setProperty("top", `${top}px`)
+    dummyElement.style.setProperty("position", "absolute")
     dummyElement.style.setProperty("cursor", "grabbing")
-    dummyElement.style.setProperty("top", top + "px")
+
+    // dummyElement.style.setProperty("transform", `translateY(${top}px)`)
     this.dummyElement = dummyElement
   }
   updateNextPrevState(draggableElements, draggableElementRects) {
@@ -76,7 +78,7 @@ class DragAndDrop {
       this.draggingState.updateMinMaxYOffset(this.listContainer)
       this.#updateRects.bind(this)()
     })
-    window.addEventListener('scroll',this.#updateRects.bind(this))
+    window.addEventListener('scroll', this.#updateRects.bind(this))
     this.draggableElements.forEach((item, index) => {
       item.style.setProperty("transition", "transform 0.3s")
       item.style.setProperty("touch-action", "none")
@@ -107,18 +109,37 @@ class DragAndDrop {
       minYOffset,
       prevState,
       nextState
-     } = this.draggingState
+    } = this.draggingState
+
+
     const draggingDummyElmRect = dummyElement.getBoundingClientRect()
     const currentTranslateY = Math.min(minYOffset, Math.max(clientY, maxYOffset)) - startYOffset
     dummyElement.style.setProperty("transform", `translateY(${(currentTranslateY)}px)`)
+
+    //check for drgged over    
+    this.#checkForHalfDraggedOver.bind(this)(prevState, nextState, draggingDummyElmRect)
+    //check for out of bounds 
+    // const outOFBoundsDirection = (draggingDummyElmRect.top <= 30 ? "up" : draggingDummyElmRect.bottom >= window.innerHeight ? "down" : null)
+    // if (outOFBoundsDirection) {
+    //   const value = outOFBoundsDirection === "up" ? -2 : 2
+    //   if (this.autoScrollInterval)
+    //     clearInterval(this.autoScrollInterval)
+    //   this.autoScrollInterval = setInterval(() => {
+    //     window.scrollBy(0, value)
+    //     this.#checkForHalfDraggedOver.bind(this)(prevState, nextState, draggingDummyElmRect)
+    //   }, 10)
+    // } else {
+    //   if (this.autoScrollInterval)
+    //     clearInterval(this.autoScrollInterval)
+    // }
+  }
+  #checkForHalfDraggedOver( prevState, nextState, draggingDummyElmRect) {
     const isPrevElementDraggedOver = (prevState.rect && draggingDummyElmRect.top <= prevState.rect.top + prevState.rect.height / 2)
     const isNextElementDraggedOver = (nextState.rect && draggingDummyElmRect.top >= nextState.rect.top - nextState.rect.height / 2)
-
     if (isPrevElementDraggedOver || isNextElementDraggedOver)
       this.#changeDraggingElementVisualIndex(isPrevElementDraggedOver ? prevState : nextState)
 
-  }
-
+  } 
   #changeDraggingElementVisualIndex({ elm: dragOverElement, rect: dragOverElmRect }) {
     const oldTransformValue = /\d+/.exec(dragOverElement.style.getPropertyValue("transform"))
     const oldTranslateY = (oldTransformValue ? parseInt(oldTransformValue[0]) : 0)
@@ -151,9 +172,13 @@ class DragAndDrop {
     }
   }
   #updateRects() {
+    console.clear()
+    console.log(this.draggingState.dummyElement?.getBoundingClientRect().top,this.draggingState.prevState.rect);
     this.draggableElements.forEach((item, index) => {
       this.draggableElementRects[index] = item.getBoundingClientRect();
     })
   }
+  #autoScroll(outOFBoundsDirection) {
 
+  }
 }

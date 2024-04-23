@@ -1,3 +1,6 @@
+*{
+  scroll-behavior: smooth;
+}
 .user-list{
   display: flex;
   flex-direction: column;
